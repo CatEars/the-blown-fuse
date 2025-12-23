@@ -7,9 +7,13 @@ project(
     DESCRIPTION "A FUSE library for testing file-access failure scenarios"
 )
 
+set(CPACK_PACKAGE_LICENSE "GPL-3.0-or-later")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.md")
+
 include(GNUInstallDirs)
 
 add_executable(bf_fuse)
+add_custom_target(docs)
 
 target_sources(bf_fuse
     PRIVATE
@@ -21,4 +25,19 @@ install(
     
     RUNTIME
         DESTINATION ${CMAKE_INSTALL_BINDIR}
+    
+    PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+
 )
+
+install(
+    FILES
+        LICENSE.md
+        README.md
+    DESTINATION ${CMAKE_INSTALL_DOCDIR}
+)
+
+include(CPack)
