@@ -16,10 +16,12 @@ set(CMAKE_CXX_FLAGS "-Wall -D_FILE_OFFSET_BITS=64")
 set(CMAKE_MODULE_PATH, "${CMAKE_MODULE_PATH}")
 
 include(GNUInstallDirs)
+include(CTest)
+include(${CMAKE_SOURCE_DIR}/cmake-modules/AddBoostTest.cmake)
+
+find_package(Boost REQUIRED COMPONENTS program_options unit_test_framework)
 
 add_executable(bf_fuse)
-
-find_package(Boost REQUIRED COMPONENTS program_options)
 
 target_sources(bf_fuse
     PRIVATE
@@ -48,5 +50,8 @@ install(
         README.md
     DESTINATION ${CMAKE_INSTALL_DOCDIR}
 )
+
+add_boost_test(src/test_get_int.cxx)
+add_boost_test(src/test_sample_test.cxx)
 
 include(CPack)

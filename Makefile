@@ -1,4 +1,4 @@
-.PHONY: build package clean
+.PHONY: build package clean test
 
 build:
 	cmake -B build -G "Unix Makefiles" && \
@@ -10,3 +10,5 @@ package: build
 clean:
 	rm -rf build
 
+test: build
+	cd build && ctest

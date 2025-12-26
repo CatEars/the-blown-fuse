@@ -19,31 +19,11 @@
 #include <boost/leaf.hpp>
 #include <boost/program_options.hpp>
 #include <fuse.h>
-#include "fuse_params.h"
+#include "fuse_params.hpp"
+#include "get_int.hpp"
 
 namespace leaf = boost::leaf;
 namespace po = boost::program_options;
-
-enum class err1
-{
-    e1,
-    e2
-};
-
-leaf::result<int> getInt(bool useNegative, bool crash)
-{
-    if (useNegative && crash)
-    {
-        return leaf::new_error(err1::e1);
-    }
-
-    if (crash)
-    {
-        return leaf::new_error(err1::e2);
-    }
-
-    return useNegative ? -1 : 1;
-}
 
 int main(int argc, char *argv[])
 {
@@ -78,16 +58,16 @@ int main(int argc, char *argv[])
     leaf::result<int> result = leaf::try_handle_some(
         [&]() -> leaf::result<int>
         {
-            return getInt(useNegative, crash);
+            return get_int(useNegative, crash);
         },
-        [](err1 err) -> leaf::result<int>
+        [](my_errors err) -> leaf::result<int>
         {
             switch (err)
             {
-            case err1::e1:
+            case my_errors::e1:
                 std::cout << "Failed with e1" << std::endl;
                 break;
-            case err1::e2:
+            case my_errors::e2:
                 std::cout << "Failed with e2" << std::endl;
                 break;
             }
