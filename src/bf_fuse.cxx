@@ -18,6 +18,7 @@
 #include <iostream>
 #include <boost/leaf.hpp>
 #include <boost/program_options.hpp>
+#include <boost/process.hpp>
 #include <fuse.h>
 #include "fuse_params.hpp"
 #include "get_int.hpp"

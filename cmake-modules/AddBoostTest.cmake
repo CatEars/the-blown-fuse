@@ -5,7 +5,7 @@ function(add_boost_test SOURCE_FILE_NAME)
     add_executable(${TEST_EXECUTABLE_NAME} ${SOURCE_FILE_NAME})
     target_link_libraries(${TEST_EXECUTABLE_NAME}
         PRIVATE
-        Boost::program_options)
+        ${BF_FUSE_LINK_DEPENDENCIES})
 
     file(READ "${SOURCE_FILE_NAME}" SOURCE_FILE_CONTENTS)
     string(REGEX MATCHALL "BOOST_AUTO_TEST_CASE\\( *([A-Za-z_0-9]+) *\\)" 
@@ -16,6 +16,8 @@ function(add_boost_test SOURCE_FILE_NAME)
 
         add_test(NAME "${TEST_EXECUTABLE_NAME}.${TEST_NAME}" 
                  COMMAND ${TEST_EXECUTABLE_NAME}
-                 --run_test=${TEST_NAME} --catch_system_error=yes)
+                    --run_test=${TEST_NAME} 
+                    --catch_system_error=yes 
+                ${ARGN})
     endforeach()
 endfunction()

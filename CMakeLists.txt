@@ -16,6 +16,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall -D_FILE_OFFSET_BITS=64")
 set(CMAKE_MODULE_PATH, "${CMAKE_MODULE_PATH}")
 
+set(BF_FUSE_LINK_DEPENDENCIES
+    Boost::program_options)
+
 ### CMake library
 include(GNUInstallDirs)
 include(CTest)
@@ -26,7 +29,7 @@ find_package(Boost REQUIRED COMPONENTS program_options unit_test_framework)
 
 ### Program Testing
 add_boost_test(src/test_get_int.cxx)
-add_boost_test(src/test_sample_test.cxx)
+add_boost_test(src/test_parse_environment.cxx)
 
 ### Program definition
 add_executable(bf_fuse)
@@ -37,7 +40,7 @@ target_sources(bf_fuse
 )
 
 target_include_directories(bf_fuse PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(bf_fuse PRIVATE Boost::program_options)
+target_link_libraries(bf_fuse PRIVATE ${BF_FUSE_LINK_DEPENDENCIES})
 
 ### Program distribution
 install(
