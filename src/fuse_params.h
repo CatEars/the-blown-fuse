@@ -20,8 +20,6 @@
 #ifndef BF_FUSE_PARAMS_H
 #define BF_FUSE_PARAMS_H
 
-#define FUSE_USE_VERSION FUSE_MAKE_VERSION(3, 18)
-
 struct bf_state
 {
 };
