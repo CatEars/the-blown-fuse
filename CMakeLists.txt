@@ -7,6 +7,7 @@ project(
     DESCRIPTION "A FUSE library for testing file-access failure scenarios"
 )
 
+### Configuration
 set(CPACK_PACKAGE_LICENSE "GPL-3.0-or-later")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.md")
 set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
@@ -15,12 +16,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-Wall -D_FILE_OFFSET_BITS=64")
 set(CMAKE_MODULE_PATH, "${CMAKE_MODULE_PATH}")
 
+### CMake library
 include(GNUInstallDirs)
 include(CTest)
 include(${CMAKE_SOURCE_DIR}/cmake-modules/AddBoostTest.cmake)
 
+### Program dependencies
 find_package(Boost REQUIRED COMPONENTS program_options unit_test_framework)
 
+### Program Testing
+add_boost_test(src/test_get_int.cxx)
+add_boost_test(src/test_sample_test.cxx)
+
+### Program definition
 add_executable(bf_fuse)
 
 target_sources(bf_fuse
@@ -31,6 +39,7 @@ target_sources(bf_fuse
 target_include_directories(bf_fuse PRIVATE ${Boost_INCLUDE_DIRS})
 target_link_libraries(bf_fuse PRIVATE Boost::program_options)
 
+### Program distribution
 install(
     TARGETS bf_fuse
     
@@ -41,7 +50,6 @@ install(
         OWNER_READ OWNER_WRITE OWNER_EXECUTE
         GROUP_READ GROUP_EXECUTE
         WORLD_READ WORLD_EXECUTE
-
 )
 
 install(
@@ -51,7 +59,5 @@ install(
     DESTINATION ${CMAKE_INSTALL_DOCDIR}
 )
 
-add_boost_test(src/test_get_int.cxx)
-add_boost_test(src/test_sample_test.cxx)
-
+### Build distributable
 include(CPack)
