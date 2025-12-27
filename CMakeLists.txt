@@ -28,8 +28,8 @@ include(${CMAKE_SOURCE_DIR}/cmake-modules/AddBoostTest.cmake)
 find_package(Boost REQUIRED COMPONENTS program_options unit_test_framework)
 
 ### Program Testing
-add_boost_test(src/test_get_int.cxx)
 add_boost_test(src/test_parse_environment.cxx)
+add_boost_test(src/test_arguments.cxx)
 
 ### Program definition
 add_executable(bf_fuse)

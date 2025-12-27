@@ -16,35 +16,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <boost/program_options.hpp>
 
-#include <string>
-#include <boost/leaf.hpp>
-#include <boost/process.hpp>
-
-namespace leaf = boost::leaf;
-
-static const std::string config_directory_env_key = "BF_FUSE_CONFIG_DIRECTORY";
-
-enum class parse_environment_errors
+boost::program_options::options_description get_program_options()
 {
-    not_found
-};
-
-struct bf_fuse_environment
-{
-    std::string config_directory;
-};
-
-leaf::result<bf_fuse_environment> parse_environment_variables(const boost::process::environment &env)
-{
-    bf_fuse_environment result;
-    const auto &config_dir = env.find(config_directory_env_key);
-    if (config_dir == env.end())
-    {
-        return leaf::new_error(parse_environment_errors::not_found);
-    }
-
-    result.config_directory = config_dir->to_string();
-
-    return result;
+    boost::program_options::options_description desc("BF FUSE");
+    return desc;
 }
