@@ -17,7 +17,8 @@ set(CMAKE_CXX_FLAGS "-Wall -D_FILE_OFFSET_BITS=64")
 set(CMAKE_MODULE_PATH, "${CMAKE_MODULE_PATH}")
 
 set(BF_FUSE_LINK_DEPENDENCIES
-    Boost::program_options)
+    Boost::program_options
+    PkgConfig::FUSE3)
 
 ### CMake library
 include(GNUInstallDirs)
@@ -26,10 +27,13 @@ include(${CMAKE_SOURCE_DIR}/cmake-modules/AddBoostTest.cmake)
 
 ### Program dependencies
 find_package(Boost REQUIRED COMPONENTS program_options unit_test_framework)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FUSE3 REQUIRED IMPORTED_TARGET fuse3)
 
 ### Program Testing
-add_boost_test(src/test_parse_environment.cxx)
 add_boost_test(src/test_arguments.cxx)
+add_boost_test(src/test_plan_file_operations.cxx)
+add_boost_test(src/test_parse_environment.cxx)
 
 ### Program definition
 add_executable(bf_fuse)

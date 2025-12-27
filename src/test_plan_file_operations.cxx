@@ -15,11 +15,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#pragma once
+#define BOOST_TEST_MODULE Fuse Operations Tests
+#include <boost/test/included/unit_test.hpp>
+#include "plan_file_operations.hpp"
 
-#define FUSE_USE_VERSION 31
-
-struct bf_state
+BOOST_AUTO_TEST_CASE(calculate_fuse_operation_always_returns_passthrough)
 {
-};
-#define BF_DATA ((struct bf_state *)fuse_get_context()->private_data)
+    auto ops = plan_file_operations();
+    BOOST_TEST(!ops.has_error());
+    auto requested = *ops;
+    BOOST_TEST(requested == file_ops::passthrough);
+}

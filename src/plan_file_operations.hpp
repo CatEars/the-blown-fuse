@@ -16,10 +16,33 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <boost/leaf.hpp>
 
-#define FUSE_USE_VERSION 31
+namespace leaf = boost::leaf;
 
-struct bf_state
+enum class requested_fuse_ops
 {
+    getattr,
+    readdir
 };
-#define BF_DATA ((struct bf_state *)fuse_get_context()->private_data)
+
+enum class file_ops
+{
+    passthrough
+};
+
+std::ostream &operator<<(std::ostream &os, const file_ops &op)
+{
+    switch (op)
+    {
+    case file_ops::passthrough:
+        return os << "passthrough";
+    default:
+        return os << "unknown";
+    }
+}
+
+leaf::result<file_ops> plan_file_operations()
+{
+    return file_ops::passthrough;
+}

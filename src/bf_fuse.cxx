@@ -19,12 +19,47 @@
 #include <boost/leaf.hpp>
 #include <boost/program_options.hpp>
 #include <boost/process.hpp>
-#include <fuse.h>
 #include "fuse_params.hpp"
+#include <fuse3/fuse.h>
 #include "arguments.hpp"
+#include "plan_file_operations.hpp"
+#include "execute_file_operations.hpp"
 
 namespace leaf = boost::leaf;
 namespace po = boost::program_options;
+
+int bf_fuse_getattr(
+    const char *path,
+    struct stat *stbuf,
+    struct fuse_file_info *fi)
+{
+    auto plan_result = plan_file_operations();
+    if (plan_result.has_error())
+    {
+        return -errno;
+    }
+
+    auto plan = plan_result.value();
+    getattr_args args(path);
+    auto execute_result = execute_getattr(args, plan);
+    if (execute_result.has_error())
+    {
+        return -errno;
+    }
+
+    auto execution = execute_result.value();
+    if (execution.error != 0)
+    {
+        return -errno;
+    }
+
+    *stbuf = execution.stbuf;
+    return 0;
+}
+
+static const struct fuse_operations bf_fuse_oper = {
+    .getattr = bf_fuse_getattr,
+};
 
 int main(int argc, char *argv[])
 {
@@ -34,5 +69,5 @@ int main(int argc, char *argv[])
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
 
-    return 0;
+    return fuse_main(argc, argv, &bf_fuse_oper, NULL);
 }
