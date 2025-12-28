@@ -20,6 +20,13 @@
 #include <boost/leaf.hpp>
 #include <sys/stat.h>
 #include <string>
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <functional>
+
+template <typename TResult, typename TArg>
+using next_function = std::function<leaf::result<TResult>(TArg)>;
 
 enum class execution_errors
 {
@@ -58,12 +65,47 @@ struct passthrough_operations
 
 static passthrough_operations _passthrough_ops;
 
-leaf::result<getattr_result> execute_getattr(
+struct slow_operations
+{
+    leaf::result<getattr_result> getattr(const getattr_args &args, next_function<getattr_result, getattr_args> next)
+    {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1s);
+        return next(args);
+    }
+};
+
+static slow_operations _slow_ops;
+
+struct fail_operations
+{
+    leaf::result<getattr_result> getattr(const getattr_args &args)
+    {
+        getattr_result result;
+        result.error = 1;
+        return result;
+    }
+};
+
+static fail_operations _fail_ops;
+
+leaf::result<getattr_result>
+execute_getattr(
     const getattr_args &args, file_ops ops)
 {
     if (ops == file_ops::passthrough)
     {
         return _passthrough_ops.getattr(args);
+    }
+    else if (ops == file_ops::slow)
+    {
+        auto call_passthrough = [&](const getattr_args &args) -> leaf::result<getattr_result>
+        { return _passthrough_ops.getattr(args); };
+        return _slow_ops.getattr(args, call_passthrough);
+    }
+    else if (ops == file_ops::fail)
+    {
+        return _fail_ops.getattr(args);
     }
     return leaf::new_error(execution_errors::not_implemented);
 }

@@ -28,7 +28,9 @@ enum class requested_fuse_ops
 
 enum class file_ops
 {
-    passthrough
+    passthrough,
+    slow,
+    fail
 };
 
 std::ostream &operator<<(std::ostream &os, const file_ops &op)
@@ -37,6 +39,10 @@ std::ostream &operator<<(std::ostream &os, const file_ops &op)
     {
     case file_ops::passthrough:
         return os << "passthrough";
+    case file_ops::slow:
+        return os << "slow";
+    case file_ops::fail:
+        return os << "slow";
     default:
         return os << "unknown";
     }

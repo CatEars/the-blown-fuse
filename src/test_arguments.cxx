@@ -21,14 +21,27 @@
 #include <iostream>
 #include <string>
 
-BOOST_AUTO_TEST_CASE(has_a_description)
+std::string get_description()
 {
     auto po = get_program_options();
     std::stringstream ss;
     ss << po;
 
-    auto description = ss.str();
+    return ss.str();
+}
+
+BOOST_AUTO_TEST_CASE(has_a_description)
+{
+    auto description = get_description();
     auto expected_string = "BF FUSE";
+
+    BOOST_TEST(description.find(expected_string) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(has_a_help_flag)
+{
+    auto description = get_description();
+    auto expected_string = "--help";
 
     BOOST_TEST(description.find(expected_string) != std::string::npos);
 }

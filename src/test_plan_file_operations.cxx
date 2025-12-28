@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#define BOOST_TEST_MODULE Fuse Operations Tests
+#define BOOST_TEST_MODULE Plan file operations tests
 #include <boost/test/included/unit_test.hpp>
 #include "plan_file_operations.hpp"
 

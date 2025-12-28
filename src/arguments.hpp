@@ -21,5 +21,7 @@
 boost::program_options::options_description get_program_options()
 {
     boost::program_options::options_description desc("BF FUSE");
+    auto options = desc.add_options();
+    options("help", "Print help message");
     return desc;
 }
