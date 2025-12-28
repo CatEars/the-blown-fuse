@@ -1,4 +1,4 @@
-.PHONY: build package clean test self-test
+.PHONY: build package clean test self-test release
 
 build:
 	cmake -B build -G "Unix Makefiles" && \
@@ -9,9 +9,13 @@ package: build
 
 clean:
 	rm -rf build
+	rm -rf dist
 
 test: build
 	cd build && ctest
 
 self-test:
 	python3 self-test.py
+
+release:
+	python3 release.py

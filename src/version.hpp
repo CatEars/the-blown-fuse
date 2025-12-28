@@ -16,4 +16,5 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
-#define BF_FUSE_VERSION "0.0.1-alpha"
+// DO NOT EDIT THE VERSION! This is updated automatically by the release script.
+#define BF_FUSE_VERSION "0.0.1"

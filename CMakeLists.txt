@@ -1,14 +1,18 @@
 cmake_minimum_required(VERSION 4.2.0)
 
+# DO NOT EDIT THE VERSION! This is updated automatically by the release script.
+set(BF_FUSE_VERSION 0.0.1)
+
 project(
     the-blown-fuse
-    VERSION 0.0.1
+    VERSION ${BF_FUSE_VERSION}
     LANGUAGES CXX
     DESCRIPTION "A FUSE library for testing file-access failure scenarios"
 )
 
 ### Configuration
 set(CPACK_PACKAGE_LICENSE "GPL-3.0-or-later")
+set(CPACK_GENERATOR "STGZ")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.md")
 set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 set(CMAKE_CXX_STANDARD 17)
