@@ -32,8 +32,9 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(FUSE3 REQUIRED IMPORTED_TARGET fuse3)
 
 ### Program Testing
-add_boost_test(src/test_options.cxx)
 add_boost_test(src/test_execute_file_operations.cxx)
+add_boost_test(src/test_file_tree.cxx)
+add_boost_test(src/test_options.cxx)
 add_boost_test(src/test_plan_file_operations.cxx)
 
 ### Program definition

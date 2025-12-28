@@ -53,5 +53,5 @@ std::ostream &operator<<(std::ostream &os, const file_ops &op)
 
 leaf::result<file_ops> plan_file_operations()
 {
-    return file_ops::log;
+    return file_ops::passthrough;
 }
