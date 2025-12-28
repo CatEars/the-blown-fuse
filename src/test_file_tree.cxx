@@ -30,6 +30,13 @@ BOOST_AUTO_TEST_CASE(file_tree_has_a_file_for_each_execution_strategy)
     BOOST_TEST(!global_file_tree.get("/passthrough").has_error());
 }
 
+BOOST_AUTO_TEST_CASE(file_tree_has_a_root_file_with_four_children)
+{
+    auto result = global_file_tree.get("/");
+    BOOST_TEST(!result.has_error());
+    BOOST_TEST((*result).children.size() == 4);
+}
+
 BOOST_AUTO_TEST_CASE(file_tree_returns_no_such_file_when_file_does_not_exist)
 {
     auto main = []() -> leaf::result<faked_file>

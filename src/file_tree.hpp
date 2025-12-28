@@ -39,17 +39,32 @@ std::ostream &operator<<(std::ostream &os, const file_errors &err)
 
 struct faked_file
 {
+    std::string path;
+    std::string name;
+    std::vector<faked_file> children;
 };
-static faked_file _log_file;
-static faked_file _slow_file;
-static faked_file _fail_file;
-static faked_file _passthrough_file;
+static faked_file _log_file{
+    .path = "/",
+    .name = "log"};
+static faked_file _slow_file{
+    .path = "/",
+    .name = "slow"};
+static faked_file _fail_file{
+    .path = "/",
+    .name = "fail"};
+static faked_file _passthrough_file{
+    .path = "/",
+    .name = "passthrough"};
+static faked_file _root_file{
+    .path = "/",
+    .name = "",
+    .children = std::vector<faked_file>{_log_file, _slow_file, _fail_file, _passthrough_file},
+};
 
 class faked_file_tree
 {
-private:
 public:
-    leaf::result<faked_file> get(const std::string &path)
+    leaf::result<faked_file &> get(const std::string &path)
     {
         if (path == "/log")
         {
@@ -66,6 +81,10 @@ public:
         else if (path == "/passthrough")
         {
             return _passthrough_file;
+        }
+        else if (path == "/")
+        {
+            return _root_file;
         }
 
         return leaf::new_error(file_errors::no_such_file);
