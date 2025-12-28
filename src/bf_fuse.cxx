@@ -21,7 +21,7 @@
 #include <boost/process.hpp>
 #include "fuse_params.hpp"
 #include <fuse3/fuse.h>
-#include "arguments.hpp"
+#include "options.hpp"
 #include "plan_file_operations.hpp"
 #include "execute_file_operations.hpp"
 #include "version.hpp"

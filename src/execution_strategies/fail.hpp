@@ -16,5 +16,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include "../file_operations_data.hpp"
 
-#define FUSE_USE_VERSION 31
+struct fail_operations
+{
+    leaf::result<getattr_result> getattr(const getattr_args &args)
+    {
+        getattr_result result;
+        result.error = 1;
+        return result;
+    }
+};

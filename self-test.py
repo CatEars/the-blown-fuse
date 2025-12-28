@@ -37,7 +37,7 @@ def all_headers_uses_pragma_once():
     path = Path.cwd() / 'src'
     any_missing = False
 
-    for hpp_file in path.rglob('*.hpp'):
+    for hpp_file in path.rglob('**/*.hpp'):
         try:
             with hpp_file.open('r', encoding='utf-8') as f:
                 has_pragma = any(line.strip().startswith('#pragma once') for line in f)
@@ -70,7 +70,7 @@ def all_cpp_files_start_with_license_header():
     missing_count = 0
     total_files = 0
 
-    for file_path in src_path.rglob('*'):
+    for file_path in src_path.rglob('**/*'):
         if file_path.suffix in extensions:
             total_files += 1
             try:

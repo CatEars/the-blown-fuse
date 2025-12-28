@@ -16,5 +16,19 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <chrono>
+#include <thread>
+#include "../file_operations_data.hpp"
 
-#define FUSE_USE_VERSION 31
+template <typename TResult, typename TArg>
+using next_function = std::function<leaf::result<TResult>(TArg)>;
+
+struct slow_operations
+{
+    leaf::result<getattr_result> getattr(const getattr_args &args, next_function<getattr_result, getattr_args> next)
+    {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1s);
+        return next(args);
+    }
+};

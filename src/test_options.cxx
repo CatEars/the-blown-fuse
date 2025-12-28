@@ -17,9 +17,9 @@
  */
 #define BOOST_TEST_MODULE Argument Parsing Tests
 #include <boost/test/included/unit_test.hpp>
-#include "arguments.hpp"
 #include <iostream>
 #include <string>
+#include "options.hpp"
 
 std::string get_description()
 {

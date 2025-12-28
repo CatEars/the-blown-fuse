@@ -16,5 +16,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <string>
+#include <sys/stat.h>
 
-#define FUSE_USE_VERSION 31
+struct getattr_args
+{
+    const std::string path;
+
+public:
+    getattr_args(const char *_path) : path(_path)
+    {
+    }
+};
+
+struct getattr_result
+{
+    int error = 0;
+    struct stat stbuf;
+};

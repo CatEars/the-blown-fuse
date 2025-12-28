@@ -16,5 +16,19 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include "../file_operations_data.hpp"
+#include <sys/stat.h>
 
-#define FUSE_USE_VERSION 31
+struct passthrough_operations
+{
+    leaf::result<getattr_result> getattr(const getattr_args &args)
+    {
+        getattr_result result;
+        int res = lstat(args.path.c_str(), &result.stbuf);
+        if (res == -1)
+        {
+            result.error = -errno;
+        }
+        return result;
+    }
+};

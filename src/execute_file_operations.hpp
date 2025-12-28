@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
-#include "plan_file_operations.hpp"
 #include <boost/leaf.hpp>
 #include <sys/stat.h>
 #include <string>
@@ -24,69 +23,19 @@
 #include <thread>
 #include <chrono>
 #include <functional>
-
-template <typename TResult, typename TArg>
-using next_function = std::function<leaf::result<TResult>(TArg)>;
+#include "plan_file_operations.hpp"
+#include "file_operations_data.hpp"
+#include "execution_strategies/fail.hpp"
+#include "execution_strategies/passthrough.hpp"
+#include "execution_strategies/slow.hpp"
 
 enum class execution_errors
 {
     not_implemented
 };
 
-struct getattr_args
-{
-    const std::string path;
-
-public:
-    getattr_args(const char *_path) : path(_path)
-    {
-    }
-};
-
-struct getattr_result
-{
-    int error = 0;
-    struct stat stbuf;
-};
-
-struct passthrough_operations
-{
-    leaf::result<getattr_result> getattr(const getattr_args &args)
-    {
-        getattr_result result;
-        int res = lstat(args.path.c_str(), &result.stbuf);
-        if (res == -1)
-        {
-            result.error = -errno;
-        }
-        return result;
-    }
-};
-
 static passthrough_operations _passthrough_ops;
-
-struct slow_operations
-{
-    leaf::result<getattr_result> getattr(const getattr_args &args, next_function<getattr_result, getattr_args> next)
-    {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1s);
-        return next(args);
-    }
-};
-
 static slow_operations _slow_ops;
-
-struct fail_operations
-{
-    leaf::result<getattr_result> getattr(const getattr_args &args)
-    {
-        getattr_result result;
-        result.error = 1;
-        return result;
-    }
-};
-
 static fail_operations _fail_ops;
 
 leaf::result<getattr_result>
