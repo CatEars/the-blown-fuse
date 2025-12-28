@@ -18,7 +18,7 @@
 #define BOOST_TEST_MODULE File tree tests
 #include <boost/test/included/unit_test.hpp>
 #include <boost/leaf.hpp>
-#include "file_tree.hpp"
+#include "global_file_tree.hpp"
 
 namespace leaf = boost::leaf;
 

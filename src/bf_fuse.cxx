@@ -34,7 +34,8 @@ int bf_fuse_getattr(
     struct stat *stbuf,
     struct fuse_file_info *fi)
 {
-    auto plan_result = plan_file_operations();
+    std::string converted_path(path);
+    auto plan_result = plan_file_operations(converted_path);
     if (plan_result.has_error())
     {
         return -errno;

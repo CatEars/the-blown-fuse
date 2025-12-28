@@ -18,6 +18,7 @@
 #pragma once
 #include <boost/leaf.hpp>
 #include <string>
+#include "plannable_operations.hpp"
 
 namespace leaf = boost::leaf;
 
@@ -41,20 +42,25 @@ struct faked_file
 {
     std::string path;
     std::string name;
+    file_ops file_operation;
     std::vector<faked_file> children;
 };
 static faked_file _log_file{
     .path = "/",
-    .name = "log"};
+    .name = "log",
+    .file_operation = file_ops::log};
 static faked_file _slow_file{
     .path = "/",
-    .name = "slow"};
+    .name = "slow",
+    .file_operation = file_ops::slow};
 static faked_file _fail_file{
     .path = "/",
-    .name = "fail"};
+    .name = "fail",
+    .file_operation = file_ops::fail};
 static faked_file _passthrough_file{
     .path = "/",
-    .name = "passthrough"};
+    .name = "passthrough",
+    .file_operation = file_ops::passthrough};
 static faked_file _root_file{
     .path = "/",
     .name = "",
@@ -90,5 +96,3 @@ public:
         return leaf::new_error(file_errors::no_such_file);
     }
 };
-
-static faked_file_tree global_file_tree;

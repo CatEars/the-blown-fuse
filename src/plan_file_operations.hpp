@@ -17,22 +17,10 @@
  */
 #pragma once
 #include <boost/leaf.hpp>
+#include "plannable_operations.hpp"
+#include "global_file_tree.hpp"
 
 namespace leaf = boost::leaf;
-
-enum class requested_fuse_ops
-{
-    getattr,
-    readdir
-};
-
-enum class file_ops
-{
-    passthrough,
-    slow,
-    fail,
-    log
-};
 
 std::ostream &operator<<(std::ostream &os, const file_ops &op)
 {
@@ -51,7 +39,8 @@ std::ostream &operator<<(std::ostream &os, const file_ops &op)
     }
 }
 
-leaf::result<file_ops> plan_file_operations()
+leaf::result<file_ops> plan_file_operations(const std::string &path)
 {
-    return file_ops::passthrough;
+    BOOST_LEAF_AUTO(result, global_file_tree.get(path));
+    return result.file_operation;
 }

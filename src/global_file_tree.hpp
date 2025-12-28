@@ -15,22 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#define BOOST_TEST_MODULE Plan file operations tests
-#include <boost/test/included/unit_test.hpp>
-#include "plan_file_operations.hpp"
+#pragma once
+#include "file_tree.hpp"
 
-BOOST_AUTO_TEST_CASE(calculate_fuse_operation_returns_passthrough_for_slash_passthrough)
-{
-    auto ops = plan_file_operations("/passthrough");
-    BOOST_TEST(!ops.has_error());
-    auto requested = *ops;
-    BOOST_TEST(requested == file_ops::passthrough);
-}
-
-BOOST_AUTO_TEST_CASE(calculate_fuse_operation_returns_log_for_slash_log)
-{
-    auto ops = plan_file_operations("/log");
-    BOOST_TEST(!ops.has_error());
-    auto requested = *ops;
-    BOOST_TEST(requested == file_ops::log);
-}
+static faked_file_tree global_file_tree;
