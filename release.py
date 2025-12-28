@@ -71,6 +71,7 @@ def main():
         
         if source_path.exists():
             shutil.copy(source_path, dist_dir / installer_name)
+            run_command(f"git tag {version_str}")
         else:
             print('[Error] could not find expected output file:', installer_name)
             raise Exception()
