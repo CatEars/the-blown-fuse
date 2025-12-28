@@ -20,7 +20,7 @@
 
 boost::program_options::options_description get_program_options()
 {
-    boost::program_options::options_description desc("bf_fuse options:");
+    boost::program_options::options_description desc("bf_fuse options");
     auto options = desc.add_options();
     options("help,h", "print help");
     options("version,V", "print version");
