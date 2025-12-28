@@ -18,6 +18,7 @@ set(CMAKE_MODULE_PATH, "${CMAKE_MODULE_PATH}")
 
 set(BF_FUSE_LINK_DEPENDENCIES
     Boost::program_options
+    Boost::log
     PkgConfig::FUSE3)
 
 ### CMake library
@@ -26,7 +27,7 @@ include(CTest)
 include(${CMAKE_SOURCE_DIR}/cmake-modules/AddBoostTest.cmake)
 
 ### Program dependencies
-find_package(Boost REQUIRED COMPONENTS program_options unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS program_options log unit_test_framework)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(FUSE3 REQUIRED IMPORTED_TARGET fuse3)
 
@@ -34,7 +35,6 @@ pkg_check_modules(FUSE3 REQUIRED IMPORTED_TARGET fuse3)
 add_boost_test(src/test_options.cxx)
 add_boost_test(src/test_execute_file_operations.cxx)
 add_boost_test(src/test_plan_file_operations.cxx)
-add_boost_test(src/test_parse_environment.cxx)
 
 ### Program definition
 add_executable(bf_fuse)

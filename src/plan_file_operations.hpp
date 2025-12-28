@@ -30,7 +30,8 @@ enum class file_ops
 {
     passthrough,
     slow,
-    fail
+    fail,
+    log
 };
 
 std::ostream &operator<<(std::ostream &os, const file_ops &op)
@@ -43,6 +44,8 @@ std::ostream &operator<<(std::ostream &os, const file_ops &op)
         return os << "slow";
     case file_ops::fail:
         return os << "slow";
+    case file_ops::log:
+        return os << "log";
     default:
         return os << "unknown";
     }
@@ -50,5 +53,5 @@ std::ostream &operator<<(std::ostream &os, const file_ops &op)
 
 leaf::result<file_ops> plan_file_operations()
 {
-    return file_ops::passthrough;
+    return file_ops::log;
 }

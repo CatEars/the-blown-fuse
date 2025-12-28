@@ -20,9 +20,6 @@
 #include <thread>
 #include "../file_operations_data.hpp"
 
-template <typename TResult, typename TArg>
-using next_function = std::function<leaf::result<TResult>(TArg)>;
-
 struct slow_operations
 {
     leaf::result<getattr_result> getattr(const getattr_args &args, next_function<getattr_result, getattr_args> next)

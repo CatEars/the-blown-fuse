@@ -26,6 +26,7 @@
 #include "plan_file_operations.hpp"
 #include "file_operations_data.hpp"
 #include "execution_strategies/fail.hpp"
+#include "execution_strategies/log.hpp"
 #include "execution_strategies/passthrough.hpp"
 #include "execution_strategies/slow.hpp"
 
@@ -37,24 +38,30 @@ enum class execution_errors
 static passthrough_operations _passthrough_ops;
 static slow_operations _slow_ops;
 static fail_operations _fail_ops;
+static log_operations _log_ops;
 
 leaf::result<getattr_result>
 execute_getattr(
     const getattr_args &args, file_ops ops)
 {
+    auto call_passthrough = [&](const getattr_args &args) -> leaf::result<getattr_result>
+    { return _passthrough_ops.getattr(args); };
+
     if (ops == file_ops::passthrough)
     {
         return _passthrough_ops.getattr(args);
     }
     else if (ops == file_ops::slow)
     {
-        auto call_passthrough = [&](const getattr_args &args) -> leaf::result<getattr_result>
-        { return _passthrough_ops.getattr(args); };
         return _slow_ops.getattr(args, call_passthrough);
     }
     else if (ops == file_ops::fail)
     {
         return _fail_ops.getattr(args);
+    }
+    else if (ops == file_ops::log)
+    {
+        return _log_ops.getattr(args, call_passthrough);
     }
     return leaf::new_error(execution_errors::not_implemented);
 }

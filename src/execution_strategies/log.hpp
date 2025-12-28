@@ -16,24 +16,17 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <string>
-#include <sys/stat.h>
+#include "../file_operations_data.hpp"
+#include <boost/log/trivial.hpp>
+#include <boost/leaf.hpp>
 
-template <typename TResult, typename TArg>
-using next_function = std::function<leaf::result<TResult>(TArg)>;
+namespace leaf = boost::leaf;
 
-struct getattr_args
+struct log_operations
 {
-    const std::string path;
-
-public:
-    getattr_args(const char *_path) : path(_path)
+    leaf::result<getattr_result> getattr(const getattr_args &args, next_function<getattr_result, getattr_args> next)
     {
+        BOOST_LOG_TRIVIAL(info) << "<getattr path='" << args.path << "' />";
+        return next(args);
     }
-};
-
-struct getattr_result
-{
-    int error = 0;
-    struct stat stbuf;
 };
