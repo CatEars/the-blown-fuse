@@ -33,7 +33,7 @@ std::string get_description()
 BOOST_AUTO_TEST_CASE(has_a_description)
 {
     auto description = get_description();
-    auto expected_string = "BF FUSE";
+    auto expected_string = "bf_fuse";
 
     BOOST_TEST(description.find(expected_string) != std::string::npos);
 }
@@ -44,4 +44,20 @@ BOOST_AUTO_TEST_CASE(has_a_help_flag)
     auto expected_string = "--help";
 
     BOOST_TEST(description.find(expected_string) != std::string::npos);
+}
+
+BOOST_AUTO_TEST_CASE(accepts_all_flags_that_fuse_does)
+{
+    std::vector<std::string> options{
+        "-h", "--help",
+        "-V", "--version",
+        "-d",
+        "-f",
+        "-s",
+        "-o"};
+    auto description = get_description();
+    for (const auto &expected : options)
+    {
+        BOOST_TEST(description.find(expected) != std::string::npos);
+    }
 }

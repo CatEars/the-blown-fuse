@@ -16,17 +16,4 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <boost/program_options.hpp>
-
-boost::program_options::options_description get_program_options()
-{
-    boost::program_options::options_description desc("bf_fuse options:");
-    auto options = desc.add_options();
-    options("help,h", "print help");
-    options("version,V", "print version");
-    options(",d", "see FUSE");
-    options(",f", "see FUSE");
-    options(",s", "see FUSE");
-    options(",o", boost::program_options::value<std::string>(), "see FUSE");
-    return desc;
-}
+#define BF_FUSE_VERSION "0.0.1-alpha"

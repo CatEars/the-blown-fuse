@@ -24,6 +24,7 @@
 #include "arguments.hpp"
 #include "plan_file_operations.hpp"
 #include "execute_file_operations.hpp"
+#include "version.hpp"
 
 namespace leaf = boost::leaf;
 namespace po = boost::program_options;
@@ -71,9 +72,16 @@ int main(int argc, char *argv[])
 
     if (vm.count("help"))
     {
-        std::cout << desc;
+        // display help message from fuse
+        fuse_main(argc, argv, &bf_fuse_oper, NULL);
+        std::cout << std::endl
+                  << desc;
         return 0;
     }
 
+    if (vm.count("version"))
+    {
+        std::cout << "bf_fuse version " << BF_FUSE_VERSION << std::endl;
+    }
     return fuse_main(argc, argv, &bf_fuse_oper, NULL);
 }
