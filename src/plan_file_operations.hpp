@@ -18,7 +18,7 @@
 #pragma once
 #include <boost/leaf.hpp>
 #include "plannable_operations.hpp"
-#include "global_file_tree.hpp"
+#include "file_tree.hpp"
 
 namespace leaf = boost::leaf;
 
@@ -39,8 +39,14 @@ std::ostream &operator<<(std::ostream &os, const file_ops &op)
     }
 }
 
-leaf::result<file_ops> plan_file_operations(const std::string &path)
+leaf::result<file_ops> plan_file_operations(
+    const faked_file_tree& tree, 
+    const std::string &path)
 {
-    BOOST_LEAF_AUTO(result, global_file_tree.get(path));
-    return result.file_operation;
+    auto res = tree.get(path);
+    if (res.has_error()) {
+        return leaf::new_error();
+    } else {
+        return res.value().file_operation;
+    }
 }

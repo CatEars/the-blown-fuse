@@ -18,9 +18,11 @@
 #define BOOST_TEST_MODULE File tree tests
 #include <boost/test/included/unit_test.hpp>
 #include <boost/leaf.hpp>
-#include "global_file_tree.hpp"
+#include "file_tree.hpp"
 
 namespace leaf = boost::leaf;
+
+static faked_file_tree global_file_tree;
 
 BOOST_AUTO_TEST_CASE(file_tree_has_a_file_for_each_execution_strategy)
 {

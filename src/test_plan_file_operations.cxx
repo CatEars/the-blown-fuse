@@ -18,10 +18,13 @@
 #define BOOST_TEST_MODULE Plan file operations tests
 #include <boost/test/included/unit_test.hpp>
 #include "plan_file_operations.hpp"
+#include "file_tree.hpp"
+
+static faked_file_tree fake_tree;
 
 BOOST_AUTO_TEST_CASE(calculate_fuse_operation_returns_passthrough_for_slash_passthrough)
 {
-    auto ops = plan_file_operations("/passthrough");
+    auto ops = plan_file_operations(fake_tree, "/passthrough");
     BOOST_TEST(!ops.has_error());
     auto requested = *ops;
     BOOST_TEST(requested == file_ops::passthrough);
@@ -29,7 +32,7 @@ BOOST_AUTO_TEST_CASE(calculate_fuse_operation_returns_passthrough_for_slash_pass
 
 BOOST_AUTO_TEST_CASE(calculate_fuse_operation_returns_log_for_slash_log)
 {
-    auto ops = plan_file_operations("/log");
+    auto ops = plan_file_operations(fake_tree, "/log");
     BOOST_TEST(!ops.has_error());
     auto requested = *ops;
     BOOST_TEST(requested == file_ops::log);

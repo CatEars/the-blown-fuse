@@ -24,10 +24,13 @@
 #include "options.hpp"
 #include "plan_file_operations.hpp"
 #include "execute_file_operations.hpp"
+#include "file_tree.hpp"
 #include "version.hpp"
 
 namespace leaf = boost::leaf;
 namespace po = boost::program_options;
+
+static faked_file_tree global_file_tree;
 
 int bf_fuse_getattr(
     const char *path,
@@ -35,7 +38,7 @@ int bf_fuse_getattr(
     struct fuse_file_info *fi)
 {
     std::string converted_path(path);
-    auto plan_result = plan_file_operations(converted_path);
+    auto plan_result = plan_file_operations(global_file_tree, converted_path);
     if (plan_result.has_error())
     {
         return -errno;

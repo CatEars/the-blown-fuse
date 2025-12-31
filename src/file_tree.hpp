@@ -70,7 +70,7 @@ static faked_file _root_file{
 class faked_file_tree
 {
 public:
-    leaf::result<faked_file &> get(const std::string &path)
+    leaf::result<faked_file &> get(const std::string &path) const
     {
         if (path == "/log")
         {
