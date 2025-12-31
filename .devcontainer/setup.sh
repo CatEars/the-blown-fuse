@@ -5,7 +5,7 @@ THIS_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 $THIS_SCRIPT_DIR/setup-git-aliases.sh
 
 # Install boost and fuse
-sudo apt update && sudo apt install -y libboost-all-dev libfuse-dev
+sudo apt update && sudo apt install -y libboost-all-dev libfuse3-dev
 
 # Install clang
 wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 18
