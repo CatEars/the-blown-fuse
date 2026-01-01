@@ -17,12 +17,13 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.md")
 set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "-Wall -D_FILE_OFFSET_BITS=64")
+set(CMAKE_CXX_FLAGS "-Wall -D_FILE_OFFSET_BITS=64 -O0")
 set(CMAKE_MODULE_PATH, "${CMAKE_MODULE_PATH}")
 
 set(BF_FUSE_LINK_DEPENDENCIES
     Boost::program_options
     Boost::log
+    Boost::json
     PkgConfig::FUSE3)
 
 ### CMake library
@@ -31,7 +32,7 @@ include(CTest)
 include(${CMAKE_SOURCE_DIR}/cmake-modules/AddBoostTest.cmake)
 
 ### Program dependencies
-find_package(Boost REQUIRED COMPONENTS program_options log unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS program_options log json unit_test_framework)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(FUSE3 REQUIRED IMPORTED_TARGET fuse3)
 
@@ -40,6 +41,7 @@ add_boost_test(src/test_execute_file_operations.cxx)
 add_boost_test(src/test_file_tree.cxx)
 add_boost_test(src/test_options.cxx)
 add_boost_test(src/test_plan_file_operations.cxx)
+add_boost_test(src/test_config.cxx)
 
 ### Program definition
 add_executable(bf_fuse)
