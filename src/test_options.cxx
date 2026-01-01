@@ -61,3 +61,9 @@ BOOST_AUTO_TEST_CASE(accepts_all_flags_that_fuse_does)
         BOOST_TEST(description.find(expected) != std::string::npos);
     }
 }
+
+BOOST_AUTO_TEST_CASE(accepts_a_flag_for_bf_fuse_config_file)
+{
+    auto description = get_description();
+    BOOST_TEST(description.find("--config") != std::string::npos);
+}

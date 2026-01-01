@@ -70,9 +70,16 @@ int main(int argc, char *argv[])
 {
     auto desc = get_program_options();
 
+    auto parsed = po::command_line_parser(argc, argv)
+        .options(desc)
+        .allow_unregistered() 
+        .run();
+
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::store(parsed, vm);
     po::notify(vm);
+
+    fuse_args_without_bf_fuse fargs = filter_fuse_args(argc, argv, parsed, vm);
 
     if (vm.count("help"))
     {
@@ -87,5 +94,5 @@ int main(int argc, char *argv[])
     {
         std::cout << "bf_fuse version " << BF_FUSE_VERSION << std::endl;
     }
-    return fuse_main(argc, argv, &bf_fuse_oper, NULL);
+    return fuse_main(fargs.argc, fargs.argv, &bf_fuse_oper, NULL);
 }
