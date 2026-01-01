@@ -22,6 +22,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/json.hpp>
 #include <boost/leaf.hpp>
+#include "plannable_operations.hpp"
 
 namespace leaf = boost::leaf;
 
@@ -54,6 +55,7 @@ struct file_node_from_config
 {
     std::string name;
     std::vector<file_node_from_config> children;
+    file_ops file_ops = file_ops::passthrough;
 
     bool is_directory() const {
         return this->children.size() == 0;

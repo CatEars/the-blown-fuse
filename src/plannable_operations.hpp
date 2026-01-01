@@ -30,3 +30,27 @@ enum class file_ops
     fail,
     log
 };
+
+std::ostream &operator<<(std::ostream &os, const file_ops &ops)
+{
+    switch (ops)
+    {
+    case file_ops::passthrough:
+        os << "passthrough";
+        break;
+    case file_ops::slow:
+        os << "slow";
+        break;
+    case file_ops::fail:
+        os << "fail";
+        break;
+    case file_ops::log:
+        os << "log";
+        break;
+    default:
+        os << "unknown";
+        break;
+    }
+    return os;
+}
+

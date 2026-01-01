@@ -22,23 +22,6 @@
 
 namespace leaf = boost::leaf;
 
-std::ostream &operator<<(std::ostream &os, const file_ops &op)
-{
-    switch (op)
-    {
-    case file_ops::passthrough:
-        return os << "passthrough";
-    case file_ops::slow:
-        return os << "slow";
-    case file_ops::fail:
-        return os << "slow";
-    case file_ops::log:
-        return os << "log";
-    default:
-        return os << "unknown";
-    }
-}
-
 leaf::result<file_ops> plan_file_operations(
     const faked_file_tree& tree, 
     const std::string &path)

@@ -19,6 +19,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <sstream>
 #include "config.hpp"
+#include "plannable_operations.hpp"
 
 file_node_from_config read_valid_config_string(const std::string& config) {
     std::stringstream ss(config);
@@ -78,6 +79,11 @@ BOOST_AUTO_TEST_CASE(can_specify_child_nodes) {
     BOOST_TEST(config.children[1].children.size() == 1);
     BOOST_TEST(config.children[1].children[0].name == "child2-child1");
     BOOST_TEST(config.children[1].children[0].children.size() == 0);
+}
+
+BOOST_AUTO_TEST_CASE(default_file_ops_is_passthrough) {
+    auto config = read_valid_config_string(R"({"name":""})");
+    BOOST_TEST(config.file_ops == file_ops::passthrough);
 }
 
 BOOST_AUTO_TEST_CASE(returns_error_when_name_is_wrong_type) {
