@@ -40,29 +40,25 @@ std::ostream &operator<<(std::ostream &os, const file_errors &err)
 
 struct faked_file
 {
-    std::string path;
     std::string name;
     file_ops file_operation;
     std::vector<faked_file> children;
+    bool is_root = false;
 };
+
 static faked_file _log_file{
-    .path = "/",
     .name = "log",
     .file_operation = file_ops::log};
 static faked_file _slow_file{
-    .path = "/",
     .name = "slow",
     .file_operation = file_ops::slow};
 static faked_file _fail_file{
-    .path = "/",
     .name = "fail",
     .file_operation = file_ops::fail};
 static faked_file _passthrough_file{
-    .path = "/",
     .name = "passthrough",
     .file_operation = file_ops::passthrough};
 static faked_file _root_file{
-    .path = "/",
     .name = "",
     .children = std::vector<faked_file>{_log_file, _slow_file, _fail_file, _passthrough_file},
 };

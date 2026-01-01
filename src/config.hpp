@@ -23,6 +23,7 @@
 #include <boost/json.hpp>
 #include <boost/leaf.hpp>
 #include "plannable_operations.hpp"
+#include "file_tree.hpp"
 
 namespace leaf = boost::leaf;
 
@@ -54,17 +55,7 @@ std::ostream &operator<<(std::ostream &os, const config_parse_error &op)
     }
 }
 
-struct file_node_from_config
-{
-    std::string name;
-    std::vector<file_node_from_config> children;
-    file_ops file_ops = file_ops::passthrough;
-
-    bool is_directory() const
-    {
-        return this->children.size() == 0;
-    }
-};
+using file_node_from_config = faked_file;
 
 leaf::result<void> _parse_name(const boost::json::object &config_object, file_node_from_config &ret)
 {
@@ -100,19 +91,19 @@ leaf::result<void> _parse_operation(const boost::json::object &config_object, fi
     auto ops_str = *cast_ops;
     if (ops_str == "passthrough")
     {
-        ret.file_ops = file_ops::passthrough;
+        ret.file_operation = file_ops::passthrough;
     }
     else if (ops_str == "log")
     {
-        ret.file_ops = file_ops::log;
+        ret.file_operation = file_ops::log;
     }
     else if (ops_str == "fail")
     {
-        ret.file_ops = file_ops::fail;
+        ret.file_operation = file_ops::fail;
     }
     else if (ops_str == "slow")
     {
-        ret.file_ops = file_ops::slow;
+        ret.file_operation= file_ops::slow;
     }
     else
     {
@@ -170,5 +161,11 @@ leaf::result<file_node_from_config> read_configuration_stream(std::istream &io)
     {
         return leaf::new_error(config_parse_error::parse_error);
     }
-    return _recursive_parse(val);
+
+    BOOST_LEAF_AUTO(parsed, _recursive_parse(val));
+    // Override root default
+    parsed.is_root = true;
+    parsed.name = "";
+
+    return parsed;
 }

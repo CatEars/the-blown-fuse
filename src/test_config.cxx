@@ -62,6 +62,26 @@ BOOST_AUTO_TEST_CASE(can_read_with_a_root_config)
     BOOST_TEST(config.name == "");
 }
 
+BOOST_AUTO_TEST_CASE(root_node_is_root_but_not_child_nodes)
+{
+    auto config = read_valid_config_string(R"({
+            "name":"",
+            "children": [
+                {
+                    "name": "child"
+                }
+            ]
+        })");
+    BOOST_TEST(config.is_root);
+    BOOST_TEST(!config.children[0].is_root);
+}
+
+BOOST_AUTO_TEST_CASE(root_node_name_is_overwritten_to_empty_string)
+{
+    auto config = read_valid_config_string(R"({"name":"test"})");
+    BOOST_TEST(config.name == "");
+}
+
 BOOST_AUTO_TEST_CASE(can_specify_child_nodes)
 {
     auto config = read_valid_config_string(R"({
@@ -92,7 +112,7 @@ BOOST_AUTO_TEST_CASE(can_specify_child_nodes)
 BOOST_AUTO_TEST_CASE(default_file_ops_is_passthrough)
 {
     auto config = read_valid_config_string(R"({"name":""})");
-    BOOST_TEST(config.file_ops == file_ops::passthrough);
+    BOOST_TEST(config.file_operation == file_ops::passthrough);
 }
 
 BOOST_AUTO_TEST_CASE(returns_error_when_name_is_wrong_type)
@@ -129,5 +149,5 @@ BOOST_DATA_TEST_CASE(can_parse_all_valid_file_enums, bdata::make(tested_file_ops
     ss << file_op;
     auto config = R"({"name":"","operation":")" + ss.str() + R"("})";
     auto result = read_valid_config_string(config);
-    BOOST_TEST(result.file_ops == file_op);
+    BOOST_TEST(result.file_operation == file_op);
 }
