@@ -22,7 +22,7 @@ def run_command(command):
     return result.returncode
 
 def verify_binary_version(version_str):
-    binary_path = Path.cwd() / "build" / "bf_fuse"
+    binary_path = Path.cwd() / "build" / "release" / "bf_fuse"
     try:
         output = subprocess.check_output([str(binary_path), "--version"], stderr=subprocess.STDOUT).decode()
         expected = f"bf_fuse version {version_str}"
@@ -43,7 +43,7 @@ def main():
     cmake_file = root_dir / "CMakeLists.txt"
     version_header = root_dir / "src" / "version.hpp"
     dist_dir = root_dir / "dist"
-    build_dir = root_dir / "build"
+    build_dir = root_dir / "build" / "release"
 
     update_file(cmake_file, r'BF_FUSE_VERSION \d+\.\d+\.\d+', f'BF_FUSE_VERSION {version_str}')
     update_file(version_header, r'BF_FUSE_VERSION "\d+\.\d+\.\d+"', f'BF_FUSE_VERSION "{version_str}"')

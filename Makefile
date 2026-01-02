@@ -1,18 +1,22 @@
-.PHONY: build package clean test self-test release testall
+.PHONY: build package clean test self-test release testall debug release
 
-build:
-	cmake -B build -G "Unix Makefiles" && \
-	cmake --build ./build
+build-release:
+	cmake -B build/release -S . -DCMAKE_BUILD_TYPE=Release
+	cmake --build build/release
 
-package: build
-	cd build && make package
+build-debug:
+	cmake -B build/debug -S . -DCMAKE_BUILD_TYPE=Debug
+	cmake --build build/debug
+
+package: build-release
+	cd build/release && make package
 
 clean:
 	rm -rf build
 	rm -rf dist
 
-test: build
-	cd build && ctest
+test: build-debug
+	cd build/debug && ctest
 
 testall: self-test test
 
