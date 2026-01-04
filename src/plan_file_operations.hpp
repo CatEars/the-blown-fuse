@@ -24,28 +24,39 @@
 
 namespace leaf = boost::leaf;
 
-enum class planning_error_codes {
+enum class planning_error_codes
+{
     no_such_file
 };
 
 leaf::result<file_ops> plan_file_operations(
-    const faked_file& file_tree_root, 
+    const faked_file &file_tree_root,
     const std::string &path)
 {
     boost::filesystem::path p(path);
     bool at_root = true;
-    const faked_file* file_ptr = &file_tree_root;
-    for (const auto& elem : p) {
-        if (at_root) {
+    const faked_file *file_ptr = &file_tree_root;
+    for (const auto &elem : p)
+    {
+        if (at_root)
+        {
+            at_root = false;
             continue;
         }
-        auto it = std::find_if(file_ptr->children.begin(), file_ptr->children.end(), [&](const auto& inner_elem) {
-            return inner_elem.name == elem;
-        });
+        auto it = std::find_if(
+            file_ptr->children.begin(),
+            file_ptr->children.end(),
+            [&](const auto &inner_elem)
+            {
+                return inner_elem.name == elem;
+            });
 
-        if (it == file_ptr->children.end()) {
+        if (it == file_ptr->children.end())
+        {
             return leaf::new_error(planning_error_codes::no_such_file);
-        } else {
+        }
+        else
+        {
             file_ptr = &(*it);
         }
     }

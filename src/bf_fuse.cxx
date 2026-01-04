@@ -100,26 +100,38 @@ int main(int argc, char *argv[])
     if (vm.count("version"))
     {
         std::cout << "bf_fuse version " << BF_FUSE_VERSION << std::endl;
-    } else if (!vm.count("config")) {
+    }
+    else if (!vm.count("config"))
+    {
         std::cerr << "config file must be specified for bf_fuse to work" << std::endl;
         return 1;
     }
 
-    const auto& config = vm.at("config");
-    const auto& config_path = config.as<std::string>();
+    const auto &config = vm.at("config");
+    const auto &config_path = config.as<std::string>();
     boost::filesystem::path config_path_b(config_path);
-    if (!boost::filesystem::exists(config_path_b)) {
+    if (!boost::filesystem::exists(config_path_b))
+    {
         std::cerr << "No config file at " << config_path << std::endl;
         return -1;
     }
     std::ifstream config_stream(config_path);
-    auto config_result = read_configuration_stream(config_stream);
-    if (config_result.has_error()) {
-        // TODO: use leaf error handling for better error message
-        std::cerr << "Failure reading configuration result" << std::endl;
-        return -1;
+
+    auto config_result = leaf::try_handle_some(
+        [&]() -> leaf::result<file_node_from_config>
+        {
+            return read_configuration_stream(config_stream);
+        },
+        [](config_parse_error parse_error) -> leaf::result<file_node_from_config>
+        {
+            std::cerr << parse_error << std::endl;
+            return {};
+        });
+
+    if (config_result.has_error())
+    {
+        return 1;
     }
-    auto res = *config_result;
-    global_file_tree = res;
+    global_file_tree = *config_result;
     return fuse_main(fargs.argc, fargs.argv, &bf_fuse_oper, NULL);
 }

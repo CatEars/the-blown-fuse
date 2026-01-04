@@ -20,28 +20,30 @@
 #include "plan_file_operations.hpp"
 #include "file_tree.hpp"
 
-static faked_file fake_tree {
-    .name="",
-    .file_operation=file_ops::passthrough,
-    .children={
-        {
-            .name="passthrough",
-            .file_operation=file_ops::passthrough
-        },
-        {
-            .name="log",
-            .file_operation=file_ops::log
-        },
-        {
-            .name="slow",
-            .file_operation=file_ops::slow
-        },
-        {
-            .name="fail",
-            .file_operation=file_ops::fail
-        }
-    },
-    .is_root=true,
+static faked_file fake_tree{
+    .name = "",
+    .file_operation = file_ops::passthrough,
+    .children = {
+        {.name = "passthrough",
+         .file_operation = file_ops::passthrough},
+        {.name = "log",
+         .file_operation = file_ops::log},
+        {.name = "slow",
+         .file_operation = file_ops::slow},
+        {.name = "fail",
+         .file_operation = file_ops::fail},
+        {.name = "one",
+         .file_operation = file_ops::passthrough,
+         .children = {
+             {.name = "two",
+              .file_operation = file_ops::passthrough,
+              .children =
+                  {
+                      {
+                          .name = "three",
+                          .file_operation = file_ops::fail,
+                      }}}}}},
+    .is_root = true,
 };
 
 BOOST_AUTO_TEST_CASE(calculate_fuse_operation_returns_passthrough_for_slash_passthrough)
@@ -58,4 +60,12 @@ BOOST_AUTO_TEST_CASE(calculate_fuse_operation_returns_log_for_slash_log)
     BOOST_TEST(!ops.has_error());
     auto requested = *ops;
     BOOST_TEST(requested == file_ops::log);
+}
+
+BOOST_AUTO_TEST_CASE(plan_file_operations_can_work_with_many_folders)
+{
+    auto ops = plan_file_operations(fake_tree, "/one/two/three");
+    BOOST_TEST(!ops.has_error());
+    auto requested = *ops;
+    BOOST_TEST(requested == file_ops::fail);
 }
