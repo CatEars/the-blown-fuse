@@ -16,21 +16,24 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include <iostream>
+#include <fstream>
 #include <boost/leaf.hpp>
 #include <boost/program_options.hpp>
 #include <boost/process.hpp>
+#include <boost/filesystem.hpp>
 #include "fuse_params.hpp"
 #include <fuse3/fuse.h>
 #include "options.hpp"
 #include "plan_file_operations.hpp"
 #include "execute_file_operations.hpp"
 #include "file_tree.hpp"
+#include "config.hpp"
 #include "version.hpp"
 
 namespace leaf = boost::leaf;
 namespace po = boost::program_options;
 
-static faked_file_tree global_file_tree;
+static faked_file global_file_tree;
 
 int bf_fuse_getattr(
     const char *path,
@@ -97,6 +100,26 @@ int main(int argc, char *argv[])
     if (vm.count("version"))
     {
         std::cout << "bf_fuse version " << BF_FUSE_VERSION << std::endl;
+    } else if (!vm.count("config")) {
+        std::cerr << "config file must be specified for bf_fuse to work" << std::endl;
+        return 1;
     }
+
+    const auto& config = vm.at("config");
+    const auto& config_path = config.as<std::string>();
+    boost::filesystem::path config_path_b(config_path);
+    if (!boost::filesystem::exists(config_path_b)) {
+        std::cerr << "No config file at " << config_path << std::endl;
+        return -1;
+    }
+    std::ifstream config_stream(config_path);
+    auto config_result = read_configuration_stream(config_stream);
+    if (config_result.has_error()) {
+        // TODO: use leaf error handling for better error message
+        std::cerr << "Failure reading configuration result" << std::endl;
+        return -1;
+    }
+    auto res = *config_result;
+    global_file_tree = res;
     return fuse_main(fargs.argc, fargs.argv, &bf_fuse_oper, NULL);
 }

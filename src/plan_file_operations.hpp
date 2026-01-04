@@ -16,20 +16,38 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <algorithm>
 #include <boost/leaf.hpp>
+#include <boost/filesystem.hpp>
 #include "plannable_operations.hpp"
 #include "file_tree.hpp"
 
 namespace leaf = boost::leaf;
 
+enum class planning_error_codes {
+    no_such_file
+};
+
 leaf::result<file_ops> plan_file_operations(
-    const faked_file_tree& tree, 
+    const faked_file& file_tree_root, 
     const std::string &path)
 {
-    auto res = tree.get(path);
-    if (res.has_error()) {
-        return leaf::new_error();
-    } else {
-        return res.value().file_operation;
+    boost::filesystem::path p(path);
+    bool at_root = true;
+    const faked_file* file_ptr = &file_tree_root;
+    for (const auto& elem : p) {
+        if (at_root) {
+            continue;
+        }
+        auto it = std::find_if(file_ptr->children.begin(), file_ptr->children.end(), [&](const auto& inner_elem) {
+            return inner_elem.name == elem;
+        });
+
+        if (it == file_ptr->children.end()) {
+            return leaf::new_error(planning_error_codes::no_such_file);
+        } else {
+            file_ptr = &(*it);
+        }
     }
+    return file_ptr->file_operation;
 }

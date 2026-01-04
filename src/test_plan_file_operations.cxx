@@ -20,7 +20,29 @@
 #include "plan_file_operations.hpp"
 #include "file_tree.hpp"
 
-static faked_file_tree fake_tree;
+static faked_file fake_tree {
+    .name="",
+    .file_operation=file_ops::passthrough,
+    .children={
+        {
+            .name="passthrough",
+            .file_operation=file_ops::passthrough
+        },
+        {
+            .name="log",
+            .file_operation=file_ops::log
+        },
+        {
+            .name="slow",
+            .file_operation=file_ops::slow
+        },
+        {
+            .name="fail",
+            .file_operation=file_ops::fail
+        }
+    },
+    .is_root=true,
+};
 
 BOOST_AUTO_TEST_CASE(calculate_fuse_operation_returns_passthrough_for_slash_passthrough)
 {
