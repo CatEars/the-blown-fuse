@@ -22,10 +22,10 @@
 
 struct slow_operations
 {
-    leaf::result<getattr_result> getattr(const getattr_args &args, next_function<getattr_result, getattr_args> next)
+    leaf::result<getattr_result> getattr(const getattr_args &args)
     {
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(1s);
-        return next(args);
+        return args.next(args);
     }
 };

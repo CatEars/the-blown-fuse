@@ -24,9 +24,9 @@ namespace leaf = boost::leaf;
 
 struct log_operations
 {
-    leaf::result<getattr_result> getattr(const getattr_args &args, next_function<getattr_result, getattr_args> next)
+    leaf::result<getattr_result> getattr(const getattr_args &args)
     {
         BOOST_LOG_TRIVIAL(info) << "<getattr path='" << args.path << "' />";
-        return next(args);
+        return args.next(args);
     }
 };

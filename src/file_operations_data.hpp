@@ -22,18 +22,20 @@
 template <typename TResult, typename TArg>
 using next_function = std::function<leaf::result<TResult>(TArg)>;
 
-struct getattr_args
-{
-    const std::string path;
-
-public:
-    getattr_args(const char *_path) : path(_path)
-    {
-    }
-};
-
 struct getattr_result
 {
     int error = 0;
     struct stat stbuf;
+};
+
+struct getattr_args
+{
+    const std::string path;
+    const next_function<getattr_result, getattr_args> next;
+
+public:
+    getattr_args(const char *_path, const next_function<getattr_result, getattr_args> _next)
+        : path(_path), next(_next)
+    {
+    }
 };

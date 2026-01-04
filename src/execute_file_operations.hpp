@@ -35,7 +35,7 @@ enum class execution_errors
     not_implemented
 };
 
-static passthrough_operations _passthrough_ops;
+static passthrough_operations passthrough_ops;
 static slow_operations _slow_ops;
 static fail_operations _fail_ops;
 static log_operations _log_ops;
@@ -44,16 +44,13 @@ leaf::result<getattr_result>
 execute_getattr(
     const getattr_args &args, file_ops ops)
 {
-    auto call_passthrough = [&](const getattr_args &args) -> leaf::result<getattr_result>
-    { return _passthrough_ops.getattr(args); };
-
     if (ops == file_ops::passthrough)
     {
-        return _passthrough_ops.getattr(args);
+        return passthrough_ops.getattr(args);
     }
     else if (ops == file_ops::slow)
     {
-        return _slow_ops.getattr(args, call_passthrough);
+        return _slow_ops.getattr(args);
     }
     else if (ops == file_ops::fail)
     {
@@ -61,7 +58,7 @@ execute_getattr(
     }
     else if (ops == file_ops::log)
     {
-        return _log_ops.getattr(args, call_passthrough);
+        return _log_ops.getattr(args);
     }
     return leaf::new_error(execution_errors::not_implemented);
 }

@@ -45,7 +45,11 @@ int bf_fuse_getattr(
     }
 
     auto plan = plan_result.value();
-    getattr_args args(path);
+    auto passthrough_getattr = [&](const getattr_args &arg)
+    {
+        return passthrough_ops.getattr(arg);
+    };
+    getattr_args args(path, passthrough_getattr);
     auto execute_result = execute_getattr(args, plan);
     if (execute_result.has_error())
     {
@@ -71,9 +75,9 @@ int main(int argc, char *argv[])
     auto desc = get_program_options();
 
     auto parsed = po::command_line_parser(argc, argv)
-        .options(desc)
-        .allow_unregistered() 
-        .run();
+                      .options(desc)
+                      .allow_unregistered()
+                      .run();
 
     po::variables_map vm;
     po::store(parsed, vm);

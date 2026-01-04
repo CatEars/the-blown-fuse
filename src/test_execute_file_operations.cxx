@@ -17,15 +17,24 @@
  */
 #define BOOST_TEST_MODULE Execute file operations
 #include <boost/test/included/unit_test.hpp>
+#include <boost/leaf.hpp>
 #include <sys/stat.h>
 #include <chrono>
 #include "execute_file_operations.hpp"
 
+namespace leaf = boost::leaf;
+
+static passthrough_operations pass_ops;
+leaf::result<getattr_result> send_to_passthrough(const getattr_args &args)
+{
+    return pass_ops.getattr(args);
+}
+static getattr_args common_args("/tmp", send_to_passthrough);
+
 BOOST_AUTO_TEST_CASE(passthrough_getattr_will_perform_stat_like_normal)
 {
     passthrough_operations pass;
-    getattr_args args("/tmp");
-    auto res = pass.getattr(args);
+    auto res = pass.getattr(common_args);
     BOOST_TEST(!res.has_error());
     auto val = res.value();
     BOOST_TEST(val.error == 0);
@@ -35,13 +44,10 @@ BOOST_AUTO_TEST_CASE(passthrough_getattr_will_perform_stat_like_normal)
 
 BOOST_AUTO_TEST_CASE(slow_getattr_will_perform_stat_with_a_delay)
 {
-    passthrough_operations pass;
     slow_operations slow;
-    getattr_args args("/tmp");
     auto start = std::chrono::steady_clock::now();
 
-    auto res = slow.getattr(args, [&](const getattr_args &inner_args) -> leaf::result<getattr_result>
-                            { return pass.getattr(inner_args); });
+    auto res = slow.getattr(common_args);
 
     auto end = std::chrono::steady_clock::now();
     auto diff = end - start;
@@ -58,8 +64,7 @@ BOOST_AUTO_TEST_CASE(slow_getattr_will_perform_stat_with_a_delay)
 BOOST_AUTO_TEST_CASE(fail_getattr_will_always_return_an_error)
 {
     fail_operations fails;
-    getattr_args args("/tmp");
-    auto res = fails.getattr(args);
+    auto res = fails.getattr(common_args);
     BOOST_TEST(!res.has_error());
     auto val = res.value();
     BOOST_TEST(val.error != 0);
