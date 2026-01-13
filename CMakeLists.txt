@@ -24,6 +24,7 @@ set(BF_FUSE_LINK_DEPENDENCIES
     Boost::program_options
     Boost::log
     Boost::json
+    Boost::filesystem
     PkgConfig::FUSE3)
 
 ### CMake library
@@ -32,7 +33,7 @@ include(CTest)
 include(${CMAKE_SOURCE_DIR}/cmake-modules/AddBoostTest.cmake)
 
 ### Program dependencies
-find_package(Boost REQUIRED COMPONENTS program_options log json unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS program_options log json filesystem unit_test_framework)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(FUSE3 REQUIRED IMPORTED_TARGET fuse3)
 

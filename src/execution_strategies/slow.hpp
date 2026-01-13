@@ -20,11 +20,18 @@
 #include <thread>
 #include "../file_operations_data.hpp"
 
+using namespace std::chrono_literals;
+
 struct slow_operations
 {
     leaf::result<getattr_result> getattr(const getattr_args &args)
     {
-        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1s);
+        return args.next(args);
+    }
+
+    leaf::result<readdir_result> readdir(const readdir_args &args)
+    {
         std::this_thread::sleep_for(1s);
         return args.next(args);
     }

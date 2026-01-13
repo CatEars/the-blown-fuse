@@ -62,3 +62,24 @@ execute_getattr(
     }
     return leaf::new_error(execution_errors::not_implemented);
 }
+
+leaf::result<readdir_result> execute_readdir(const readdir_args &args, file_ops ops)
+{
+    if (ops == file_ops::passthrough)
+    {
+        return passthrough_ops.readdir(args);
+    }
+    else if (ops == file_ops::slow)
+    {
+        return _slow_ops.readdir(args);
+    }
+    else if (ops == file_ops::fail)
+    {
+        return _fail_ops.readdir(args);
+    }
+    else if (ops == file_ops::log)
+    {
+        return _log_ops.readdir(args);
+    }
+    return leaf::new_error(execution_errors::not_implemented);
+}

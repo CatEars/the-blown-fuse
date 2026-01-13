@@ -17,10 +17,27 @@
  */
 #pragma once
 #include <string>
+#include <vector>
 #include <sys/stat.h>
+#include <memory>
 
 template <typename TResult, typename TArg>
 using next_function = std::function<leaf::result<TResult>(TArg)>;
+
+enum class file_operations_error_codes
+{
+    could_not_read_directory,
+    could_not_stat_file
+};
+
+struct dirinfo
+{
+    ino_t inode;
+    mode_t mode;
+    std::string name;
+};
+
+using filler_function = std::function<void(const dirinfo &)>;
 
 struct getattr_result
 {
@@ -33,9 +50,28 @@ struct getattr_args
     const std::string path;
     const next_function<getattr_result, getattr_args> next;
 
-public:
-    getattr_args(const char *_path, const next_function<getattr_result, getattr_args> _next)
+    getattr_args(const std::string &_path, const next_function<getattr_result, getattr_args> _next)
         : path(_path), next(_next)
+    {
+    }
+};
+
+struct readdir_result
+{
+    int error = 0;
+};
+
+struct readdir_args
+{
+    const std::string path;
+    const filler_function filler;
+    const next_function<readdir_result, readdir_args> next;
+
+    readdir_args(
+        const std::string &_path,
+        const filler_function &_filler,
+        const next_function<readdir_result, readdir_args> _next)
+        : path(_path), filler(_filler), next(_next)
     {
     }
 };

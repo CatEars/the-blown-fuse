@@ -29,4 +29,10 @@ struct log_operations
         BOOST_LOG_TRIVIAL(info) << "<getattr path='" << args.path << "' />";
         return args.next(args);
     }
+
+    leaf::result<readdir_result> readdir(const readdir_args &args)
+    {
+        BOOST_LOG_TRIVIAL(info) << "<readdir path='" << args.path << "' />";
+        return args.next(args);
+    }
 };

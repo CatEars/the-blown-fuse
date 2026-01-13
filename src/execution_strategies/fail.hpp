@@ -26,4 +26,11 @@ struct fail_operations
         result.error = 1;
         return result;
     }
+
+    leaf::result<readdir_result> readdir(const readdir_args &args)
+    {
+        readdir_result result;
+        result.error = 1;
+        return result;
+    }
 };

@@ -33,26 +33,35 @@
 namespace leaf = boost::leaf;
 namespace po = boost::program_options;
 
+static std::string mountpoint;
 static faked_file global_file_tree;
+static fuse_fill_dir_flags fill_dir_plus;
+
+std::string prepend_mountpoint(const char *path)
+{
+    std::stringstream ss;
+    ss << mountpoint << path;
+    return ss.str();
+}
 
 int bf_fuse_getattr(
     const char *path,
     struct stat *stbuf,
     struct fuse_file_info *fi)
 {
-    std::string converted_path(path);
-    auto plan_result = plan_file_operations(global_file_tree, converted_path);
+    auto passthrough_getattr = [&](const getattr_args &arg)
+    {
+        return passthrough_ops.getattr(arg);
+    };
+    getattr_args args(prepend_mountpoint(path), passthrough_getattr);
+
+    auto plan_result = plan_file_operations(global_file_tree, args.path);
     if (plan_result.has_error())
     {
         return -errno;
     }
 
     auto plan = plan_result.value();
-    auto passthrough_getattr = [&](const getattr_args &arg)
-    {
-        return passthrough_ops.getattr(arg);
-    };
-    getattr_args args(path, passthrough_getattr);
     auto execute_result = execute_getattr(args, plan);
     if (execute_result.has_error())
     {
@@ -69,16 +78,67 @@ int bf_fuse_getattr(
     return 0;
 }
 
+int bf_fuse_readdir(
+    const char *path,
+    void *buf,
+    fuse_fill_dir_t filler,
+    off_t offset,
+    struct fuse_file_info *fi,
+    enum fuse_readdir_flags flags)
+{
+    auto passthrough_readdir = [&](const readdir_args &arg)
+    {
+        return passthrough_ops.readdir(arg);
+    };
+
+    auto filler_function = [&](const dirinfo &info)
+    {
+        // This snippet is copied from libfuse passthrough example
+        struct stat st;
+        memset(&st, 0, sizeof(st));
+        st.st_ino = info.inode;
+        st.st_mode = info.mode << 12;
+        filler(buf, info.name.c_str(), &st, 0, fill_dir_plus);
+    };
+
+    readdir_args args(prepend_mountpoint(path), filler_function, passthrough_readdir);
+
+    auto plan_result = plan_file_operations(global_file_tree, args.path);
+    if (plan_result.has_error())
+    {
+        return -errno;
+    }
+
+    auto plan = plan_result.value();
+    auto execute_result = execute_readdir(args, plan);
+    if (execute_result.has_error())
+    {
+        return -errno;
+    }
+
+    auto execution = execute_result.value();
+    if (execution.error != 0)
+    {
+        return -errno;
+    }
+
+    // result is carried back to libfuse by `filler_function` rather than as a result written down here.
+    return 0;
+}
+
 static const struct fuse_operations bf_fuse_oper = {
     .getattr = bf_fuse_getattr,
+    .readdir = bf_fuse_readdir,
 };
 
 int main(int argc, char *argv[])
 {
     auto desc = get_program_options();
+    auto positional_desc = get_program_positional_options();
 
     auto parsed = po::command_line_parser(argc, argv)
                       .options(desc)
+                      .positional(positional_desc)
                       .allow_unregistered()
                       .run();
 
@@ -107,6 +167,13 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    mountpoint = fargs.mountpoint;
+    if (mountpoint.back() == '/')
+    {
+        // All fuse paths will start with `/....`
+        // ensure we can just combine the mountpoint with any paths from fuse and be OK.
+        mountpoint.pop_back();
+    }
     const auto &config = vm.at("config");
     const auto &config_path = config.as<std::string>();
     boost::filesystem::path config_path_b(config_path);

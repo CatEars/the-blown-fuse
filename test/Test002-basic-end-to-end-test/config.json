@@ -1,0 +1,23 @@
+{
+  "name": "",
+  "children": [
+    {
+      "name": "passthrough-child",
+      "operation": "passthrough"
+    },
+    {
+      "name": "log-child",
+      "operation": "log",
+      "children": [
+        {
+          "name": "log-slow-child",
+          "operation": "slow"
+        }
+      ]
+    },
+    {
+      "name": "fail-child",
+      "operation": "fail"
+    }
+  ]
+}
