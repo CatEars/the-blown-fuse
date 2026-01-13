@@ -33,15 +33,15 @@
 namespace leaf = boost::leaf;
 namespace po = boost::program_options;
 
+static std::string config_path;
 static std::string mountpoint;
-static std::string mirror;
 static file_tree global_file_tree;
 static fuse_fill_dir_flags fill_dir_plus;
 
-std::string prepend_mountpoint(const std::string &path)
+std::string prepend_mirrorpoint(const std::string &path)
 {
     std::stringstream ss;
-    ss << mirror << path;
+    ss << global_file_tree.mirror << path;
     return ss.str();
 }
 
@@ -55,7 +55,9 @@ int bf_fuse_getattr(
         return passthrough_ops.getattr(arg);
     };
     std::string input_path(path);
-    getattr_args args(prepend_mountpoint(input_path), passthrough_getattr);
+    auto mirrorpoint = prepend_mirrorpoint(input_path);
+    std::cout << "MIRRORED: " << mirrorpoint << std::endl;
+    getattr_args args(mirrorpoint, passthrough_getattr);
 
     auto plan_result = plan_file_operations(global_file_tree, input_path);
     if (plan_result.has_error())
@@ -99,11 +101,13 @@ int bf_fuse_readdir(
         struct stat st;
         memset(&st, 0, sizeof(st));
         st.st_ino = info.inode;
-        st.st_mode = info.mode << 12;
+        st.st_mode = info.mode;
         filler(buf, info.name.c_str(), &st, 0, fill_dir_plus);
     };
     std::string input_path(path);
-    readdir_args args(prepend_mountpoint(input_path), filler_function, passthrough_readdir);
+    auto mirrorpoint = prepend_mirrorpoint(input_path);
+    std::cout << "MIRRORED: " << mirrorpoint << std::endl;
+    readdir_args args(mirrorpoint, filler_function, passthrough_readdir);
 
     auto plan_result = plan_file_operations(global_file_tree, input_path);
     if (plan_result.has_error())
@@ -178,7 +182,7 @@ int main(int argc, char *argv[])
     }
 
     const auto &config = vm.at("config");
-    const auto &config_path = config.as<std::string>();
+    config_path = std::string(config.as<std::string>());
     boost::filesystem::path config_path_b(config_path);
     if (!boost::filesystem::exists(config_path_b))
     {
@@ -190,7 +194,15 @@ int main(int argc, char *argv[])
     auto config_result = leaf::try_handle_some(
         [&]() -> leaf::result<file_tree>
         {
-            return read_configuration_stream(config_stream);
+            std::string parent(config_path_b.parent_path().string());
+            if (parent.substr(0, 2) == "./")
+            {
+                parent = parent.substr(2);
+            }
+
+            config_stream_options opts;
+            opts.cwd_hint = std::string(boost::filesystem::absolute(boost::filesystem::path(parent)).string());
+            return read_configuration_stream(config_stream, opts);
         },
         [](config_parse_error parse_error) -> leaf::result<file_tree>
         {
@@ -203,5 +215,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     global_file_tree = *config_result;
+    global_file_tree.mirror = boost::filesystem::absolute(global_file_tree.mirror).string();
+    std::cout << "mirror is at: " << global_file_tree.mirror << std::endl;
     return fuse_main(fargs.argc, fargs.argv, &bf_fuse_oper, NULL);
 }
