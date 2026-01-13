@@ -78,6 +78,7 @@ leaf::result<void> _parse_operation(const boost::json::object &config_object, fi
     auto ops_ptr = config_object.if_contains("operation");
     if (ops_ptr == nullptr)
     {
+        ret.file_operation = file_ops::passthrough;
         return {};
     }
 
@@ -103,7 +104,7 @@ leaf::result<void> _parse_operation(const boost::json::object &config_object, fi
     }
     else if (ops_str == "slow")
     {
-        ret.file_operation= file_ops::slow;
+        ret.file_operation = file_ops::slow;
     }
     else
     {
@@ -150,7 +151,43 @@ leaf::result<file_node_from_config> _recursive_parse(const boost::json::value &v
     return ret;
 }
 
-leaf::result<file_node_from_config> read_configuration_stream(std::istream &io)
+leaf::result<file_node_from_config> _parse_tree(const boost::json::object &val)
+{
+    auto files_ptr = val.if_contains("files");
+    if (files_ptr == nullptr)
+    {
+        return leaf::new_error(config_parse_error::missing_field);
+    }
+
+    auto files = files_ptr->if_object();
+    if (files == nullptr)
+    {
+        return leaf::new_error(config_parse_error::field_wrong_type);
+    }
+
+    return _recursive_parse(*files);
+}
+
+leaf::result<std::string> _parse_mirror(const boost::json::object &val)
+{
+    auto mirror_ptr = val.if_contains("mirror");
+    if (mirror_ptr == nullptr)
+    {
+        return leaf::new_error(config_parse_error::missing_field);
+    }
+
+    auto mirror = mirror_ptr->if_string();
+    if (mirror == nullptr)
+    {
+        return leaf::new_error(config_parse_error::field_wrong_type);
+    }
+
+    std::string result;
+    result = *mirror;
+    return result;
+}
+
+leaf::result<file_tree> read_configuration_stream(std::istream &io)
 {
     boost::json::parse_options parse_opts;
     parse_opts.allow_comments = true;
@@ -162,10 +199,22 @@ leaf::result<file_node_from_config> read_configuration_stream(std::istream &io)
         return leaf::new_error(config_parse_error::parse_error);
     }
 
-    BOOST_LEAF_AUTO(parsed, _recursive_parse(val));
+    auto obj_ptr = val.if_object();
+    if (obj_ptr == nullptr)
+    {
+        return leaf::new_error(config_parse_error::field_wrong_type);
+    }
+    auto obj = *obj_ptr;
+    BOOST_LEAF_AUTO(parsed, _parse_tree(obj));
+    BOOST_LEAF_AUTO(mirror, _parse_mirror(obj));
+
     // Override root default
     parsed.is_root = true;
     parsed.name = "";
 
-    return parsed;
+    file_tree tree;
+    tree.root = parsed;
+    tree.mirror = mirror;
+
+    return tree;
 }

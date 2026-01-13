@@ -49,7 +49,7 @@ struct passthrough_operations
             if (dir_entry.is_regular_file() || dir_entry.is_directory())
             {
                 struct stat file_stat;
-                auto stat_err = stat(dir_entry.path().c_str(), &file_stat);
+                auto stat_err = lstat(dir_entry.path().c_str(), &file_stat);
                 if (stat_err == 0)
                 {
                     struct dirinfo info;

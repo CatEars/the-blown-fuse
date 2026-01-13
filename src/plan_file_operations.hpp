@@ -30,12 +30,12 @@ enum class planning_error_codes
 };
 
 leaf::result<file_ops> plan_file_operations(
-    const faked_file &file_tree_root,
+    const file_tree &file_tree_root,
     const std::string &path)
 {
     boost::filesystem::path p(path);
     bool at_root = true;
-    const faked_file *file_ptr = &file_tree_root;
+    const faked_file *file_ptr = &file_tree_root.root;
     for (const auto &elem : p)
     {
         if (at_root)

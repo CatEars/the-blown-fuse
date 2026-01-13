@@ -34,10 +34,11 @@ namespace leaf = boost::leaf;
 namespace po = boost::program_options;
 
 static std::string mountpoint;
-static faked_file global_file_tree;
+static std::string mirror;
+static file_tree global_file_tree;
 static fuse_fill_dir_flags fill_dir_plus;
 
-std::string prepend_mountpoint(const char *path)
+std::string prepend_mountpoint(const std::string &path)
 {
     std::stringstream ss;
     ss << mountpoint << path;
@@ -53,9 +54,10 @@ int bf_fuse_getattr(
     {
         return passthrough_ops.getattr(arg);
     };
-    getattr_args args(prepend_mountpoint(path), passthrough_getattr);
+    std::string input_path(path);
+    getattr_args args(prepend_mountpoint(input_path), passthrough_getattr);
 
-    auto plan_result = plan_file_operations(global_file_tree, args.path);
+    auto plan_result = plan_file_operations(global_file_tree, input_path);
     if (plan_result.has_error())
     {
         return -errno;
@@ -100,10 +102,10 @@ int bf_fuse_readdir(
         st.st_mode = info.mode << 12;
         filler(buf, info.name.c_str(), &st, 0, fill_dir_plus);
     };
+    std::string input_path(path);
+    readdir_args args(prepend_mountpoint(input_path), filler_function, passthrough_readdir);
 
-    readdir_args args(prepend_mountpoint(path), filler_function, passthrough_readdir);
-
-    auto plan_result = plan_file_operations(global_file_tree, args.path);
+    auto plan_result = plan_file_operations(global_file_tree, input_path);
     if (plan_result.has_error())
     {
         return -errno;
@@ -174,6 +176,7 @@ int main(int argc, char *argv[])
         // ensure we can just combine the mountpoint with any paths from fuse and be OK.
         mountpoint.pop_back();
     }
+
     const auto &config = vm.at("config");
     const auto &config_path = config.as<std::string>();
     boost::filesystem::path config_path_b(config_path);
@@ -185,11 +188,11 @@ int main(int argc, char *argv[])
     std::ifstream config_stream(config_path);
 
     auto config_result = leaf::try_handle_some(
-        [&]() -> leaf::result<file_node_from_config>
+        [&]() -> leaf::result<file_tree>
         {
             return read_configuration_stream(config_stream);
         },
-        [](config_parse_error parse_error) -> leaf::result<file_node_from_config>
+        [](config_parse_error parse_error) -> leaf::result<file_tree>
         {
             std::cerr << parse_error << std::endl;
             return {};

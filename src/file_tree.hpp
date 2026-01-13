@@ -45,3 +45,9 @@ struct faked_file
     std::vector<faked_file> children;
     bool is_root = false;
 };
+
+struct file_tree
+{
+    faked_file root;
+    std::string mirror;
+};
