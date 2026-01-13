@@ -170,3 +170,13 @@ BOOST_AUTO_TEST_CASE(returns_fault_when_mirror_wrong_type)
     assert_error_code(R"({"mirror":false, "files": {"name":""}})",
                       config_parse_error::field_wrong_type);
 }
+
+BOOST_AUTO_TEST_CASE(full_mirror_path_is_based_on_cwd_hint)
+{
+    std::stringstream ss(R"({"mirror": "./child1/child2", "files": {"name":""}})");
+    config_stream_options cso;
+    cso.cwd_hint = "/tmp";
+    auto result = read_configuration_stream(ss, cso);
+    BOOST_TEST(!result.has_error());
+    BOOST_TEST(result.value().mirror == "/tmp/child1/child2");
+}

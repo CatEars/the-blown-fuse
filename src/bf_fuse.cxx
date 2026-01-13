@@ -41,7 +41,7 @@ static fuse_fill_dir_flags fill_dir_plus;
 std::string prepend_mountpoint(const std::string &path)
 {
     std::stringstream ss;
-    ss << mountpoint << path;
+    ss << mirror << path;
     return ss.str();
 }
 

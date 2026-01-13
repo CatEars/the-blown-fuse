@@ -27,6 +27,11 @@
 
 namespace leaf = boost::leaf;
 
+struct config_stream_options
+{
+    std::string cwd_hint = "";
+};
+
 enum class config_parse_error
 {
     parse_error,
@@ -168,7 +173,7 @@ leaf::result<file_node_from_config> _parse_tree(const boost::json::object &val)
     return _recursive_parse(*files);
 }
 
-leaf::result<std::string> _parse_mirror(const boost::json::object &val)
+leaf::result<std::string> _parse_mirror(const boost::json::object &val, const config_stream_options &opts)
 {
     auto mirror_ptr = val.if_contains("mirror");
     if (mirror_ptr == nullptr)
@@ -182,12 +187,18 @@ leaf::result<std::string> _parse_mirror(const boost::json::object &val)
         return leaf::new_error(config_parse_error::field_wrong_type);
     }
 
-    std::string result;
-    result = *mirror;
+    boost::filesystem::path p(opts.cwd_hint);
+    std::string without_dot_slash(*mirror);
+    if (without_dot_slash.substr(0, 2) == "./")
+    {
+        without_dot_slash = without_dot_slash.substr(2);
+    }
+    p.append(without_dot_slash);
+    std::string result(p.string());
     return result;
 }
 
-leaf::result<file_tree> read_configuration_stream(std::istream &io)
+leaf::result<file_tree> read_configuration_stream(std::istream &io, const config_stream_options &opts)
 {
     boost::json::parse_options parse_opts;
     parse_opts.allow_comments = true;
@@ -206,7 +217,7 @@ leaf::result<file_tree> read_configuration_stream(std::istream &io)
     }
     auto obj = *obj_ptr;
     BOOST_LEAF_AUTO(parsed, _parse_tree(obj));
-    BOOST_LEAF_AUTO(mirror, _parse_mirror(obj));
+    BOOST_LEAF_AUTO(mirror, _parse_mirror(obj, opts));
 
     // Override root default
     parsed.is_root = true;
@@ -217,4 +228,10 @@ leaf::result<file_tree> read_configuration_stream(std::istream &io)
     tree.mirror = mirror;
 
     return tree;
+}
+
+leaf::result<file_tree> read_configuration_stream(std::istream &io)
+{
+    config_stream_options opts;
+    return read_configuration_stream(io, opts);
 }
